@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -12,9 +12,15 @@ router = APIRouter(tags=["tasks"])
 
 
 @router.get("/tasks", response_model=List[TaskResponseSchema])
-async def retrieve_task_list(db: Session = Depends(get_db)):
-    result = db.query(TaskModel).all()
-    return result
+async def retrieve_task_list(
+        is_completed: bool = Query(None, description="filter tasks base on is_completed"),
+        limit: int = Query(10, gt=0, le=50, description="limit tasks count"),
+        offset: int = Query(0, ge=0, description="offset tasks count"),
+        db: Session = Depends(get_db)):
+    query = db.query(TaskModel)
+    if is_completed is not None:
+        query = query.filter_by(is_completed=is_completed)
+    return query.offset(offset).limit(limit).all()
 
 
 @router.get("/tasks/{task_id}", response_model=TaskResponseSchema)
