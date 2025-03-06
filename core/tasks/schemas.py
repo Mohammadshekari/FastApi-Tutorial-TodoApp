@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 class TaskBaseSchema(BaseModel):
     title: str = Field(..., max_length=150, min_length=5, description="Title of the Task")
-    description: Optional[str] = Field(max_length=500, description="Description of the Task")
+    description: Optional[str] = Field(None, max_length=500, description="Description of the Task")
     is_completed: bool = Field(..., description="State of the Task")
 
 
