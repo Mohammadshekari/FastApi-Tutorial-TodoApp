@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Depends
 
-from auth.basic import get_current_user
+from auth.basic_auth import get_current_user
 from tasks.routes import router as tasks_routes
 from users.models import UserModel
 from users.routes import router as users_routes

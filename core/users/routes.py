@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
+from auth.jwt_auth import generate_access_token, generate_refresh_token
 from core.database import get_db
 from users.schemas import *
 from users.models import UserModel
@@ -18,7 +19,14 @@ async def user_login(request: UserLoginSchema, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="user doesn't exists!")
     if not user_obj.verify_password(request.password):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="invalid password")
-    return {}
+
+    access_token = generate_access_token(user_obj.id)
+    refresh_token = generate_refresh_token(user_obj.id)
+    return JSONResponse(content={
+        "detail": "logged in successfully",
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+    })
 
 
 @router.post("/register")
