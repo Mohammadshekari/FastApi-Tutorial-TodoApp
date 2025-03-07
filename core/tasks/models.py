@@ -1,6 +1,7 @@
 import datetime
 
-from sqlalchemy import Column, String, Text, Integer, Boolean, func, DateTime
+from sqlalchemy import Column, String, Text, Integer, Boolean, func, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 
 from core.database import Base
 
@@ -16,4 +17,5 @@ class TaskModel(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
 
-
+    user_id = Column(Integer, ForeignKey("users.id"))
+    user = relationship("User", back_populates="tasks", uselist=False)
