@@ -11,7 +11,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class Hasher:
     @staticmethod
-    def get_password_hash(plain_password: str) -> str:
+    def hash(plain_password: str) -> str:
         return pwd_context.hash(plain_password)
 
     @staticmethod
@@ -36,3 +36,6 @@ class UserModel(Base):
 
     def verify_password(self, plain_password: str) -> bool:
         return Hasher.verify_password(plain_password, self.password)
+
+    def set_password(self, plain_password: str) -> None:
+        self.password = Hasher.hash(plain_password)
