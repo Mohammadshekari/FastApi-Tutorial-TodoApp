@@ -38,7 +38,7 @@ def get_authenticated_user(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=err + str(e))
 
 
-def generate_access_token(user_id: int, expires_in: int = 60 * 5) -> str:
+def generate_access_token(user_id: int, expires_in: int = 3600) -> str:
     now = datetime.utcnow()
     payload = {
         "type": 'access',
