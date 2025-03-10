@@ -1,6 +1,9 @@
+import datetime
 import time
 from contextlib import asynccontextmanager
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 from fastapi import FastAPI, Depends, Request, status, BackgroundTasks
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -12,6 +15,8 @@ from tasks.routes import router as tasks_routes
 from users.models import UserModel
 from users.routes import router as users_routes
 
+scheduler = AsyncIOScheduler()
+
 tags_metadata = [
     {
         "name": "tasks",
@@ -20,10 +25,17 @@ tags_metadata = [
 ]
 
 
+def my_task():
+    print('Task Executed at ', datetime.datetime.now().isoformat())
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("App Start...")
+    scheduler.add_job(my_task, IntervalTrigger(seconds=10))
+    scheduler.start()
     yield
+    scheduler.shutdown()
     print("App Finish...")
 
 

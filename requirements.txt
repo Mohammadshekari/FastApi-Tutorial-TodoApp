@@ -4,3 +4,4 @@ passlib[bcrypt]
 pyjwt
 faker
 pytest
+apscheduler
