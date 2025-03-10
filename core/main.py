@@ -1,7 +1,7 @@
 import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Depends, Request, status
+from fastapi import FastAPI, Depends, Request, status, BackgroundTasks
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -104,3 +104,22 @@ async def http_validation_exception_handler(request, exc):
         'content': exc.errors(),
     }
     return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=error_message)
+
+
+import random
+
+task_counter = 1
+
+
+def do_task(task_id):
+    print("Start Task #", task_id)
+    time.sleep(random.randint(3, 10))
+    print("Task Done #", task_id)
+
+
+@app.get("/init_task")
+def init_task(background_tasks: BackgroundTasks):
+    global task_counter
+    task_counter += 1
+    background_tasks.add_task(do_task, task_id=task_counter)
+    return {"message": f"Task Done"}
