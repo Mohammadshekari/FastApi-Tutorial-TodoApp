@@ -6,6 +6,9 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from fastapi import FastAPI, Depends, Request, status, BackgroundTasks
 from fastapi.exceptions import RequestValidationError
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache.decorator import cache
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -135,3 +138,27 @@ def init_task(background_tasks: BackgroundTasks):
     task_counter += 1
     background_tasks.add_task(do_task, task_id=task_counter)
     return {"message": f"Task Done"}
+
+
+cache_backend = InMemoryBackend()
+FastAPICache.init(cache_backend)
+
+
+@app.get("/cache_last_datetime_with_decorator")
+@cache(expire=10)
+def cache_last_datetime_with_decorator():
+    time.sleep(3)
+    return {"last_action": datetime.datetime.now().isoformat()}
+
+
+@app.get("/cache_last_datetime_without_decorator")
+async def cache_last_datetime_without_decorator():
+    cache_key = 'last_datetime'
+    cache_data = await cache_backend.get(cache_key)
+    if cache_data:
+        return {"last_action": cache_data}
+    else:
+        time.sleep(3)
+        current_datetime = datetime.datetime.now().isoformat()
+        await cache_backend.set(cache_key, current_datetime.encode('utf-8'), 10)
+        return {"last_action": current_datetime}

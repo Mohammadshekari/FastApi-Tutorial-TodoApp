@@ -5,3 +5,4 @@ pyjwt
 faker
 pytest
 apscheduler
+fastapi-cache2
