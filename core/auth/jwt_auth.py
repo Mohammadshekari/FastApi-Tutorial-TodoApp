@@ -5,7 +5,7 @@ from jwt import DecodeError, InvalidSignatureError
 from users.models import UserModel
 from core.database import get_db
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import jwt
 from core.config import settings
 
@@ -39,7 +39,7 @@ def get_authenticated_user(
 
 
 def generate_access_token(user_id: int, expires_in: int = 3600) -> str:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     payload = {
         "type": 'access',
         "user_id": user_id,
@@ -50,7 +50,7 @@ def generate_access_token(user_id: int, expires_in: int = 3600) -> str:
 
 
 def generate_refresh_token(user_id: int, expires_in: int = 24 * 3600) -> str:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     payload = {
         "type": 'refresh',
         "user_id": user_id,
