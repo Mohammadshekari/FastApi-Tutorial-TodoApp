@@ -1,8 +1,11 @@
 import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Depends, Request
-from starlette.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Depends, Request, status
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from auth.jwt_auth import get_authenticated_user
 from tasks.routes import router as tasks_routes
@@ -80,3 +83,24 @@ async def add_process_time_header(request: Request, call_next):
     process_time = time.perf_counter() - start_time
     response.headers['X-Process-Time'] = str(process_time)
     return response
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc):
+    error_message = {
+        'ok': False,
+        'status_code': exc.status_code,
+        'detail': str(exc.detail)
+    }
+    return JSONResponse(status_code=exc.status_code, content=error_message)
+
+
+@app.exception_handler(RequestValidationError)
+async def http_validation_exception_handler(request, exc):
+    error_message = {
+        'ok': False,
+        'status_code': status.HTTP_422_UNPROCESSABLE_ENTITY,
+        'detail': 'invalid form data',
+        'content': exc.errors(),
+    }
+    return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=error_message)
