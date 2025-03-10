@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from core.config import settings
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 
 def get_authenticated_user(
@@ -17,6 +17,11 @@ def get_authenticated_user(
         db: Session = Depends(get_db)
 ):
     err = "Authentication failed, "
+    if not credentials or not credentials.credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=err + "token not provided"
+        )
     token = credentials.credentials
     try:
         decoded = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms="HS256")

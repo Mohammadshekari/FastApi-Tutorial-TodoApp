@@ -2,6 +2,7 @@ import pytest
 from starlette.testclient import TestClient
 from faker import Faker
 
+from auth.jwt_auth import generate_access_token
 from main import app
 from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.orm import sessionmaker
@@ -52,6 +53,23 @@ def tear_up_and_down_database():
 def anon_client():
     client = TestClient(app)
     yield client
+
+
+@pytest.fixture(scope='function')
+def auth_client(db_session):
+    client = TestClient(app)
+    user = db_session.query(UserModel).filter_by(username="user_test").first()
+    token = generate_access_token(user.id)
+    print('TOKEN:', token)
+    client.headers.update({'Authorization': 'bearer ' + token})
+    yield client
+
+
+@pytest.fixture(scope='function')
+def random_task(db_session):
+    user = db_session.query(UserModel).filter_by(username="user_test").first()
+    task = db_session.query(TaskModel).filter_by(user_id=user.id).first()
+    return task
 
 
 @pytest.fixture(scope="package", autouse=True)
