@@ -55,7 +55,7 @@ def anon_client():
     yield client
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='package')
 def auth_client(db_session):
     client = TestClient(app)
     user = db_session.query(UserModel).filter_by(username="user_test").first()
@@ -65,7 +65,7 @@ def auth_client(db_session):
     yield client
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='package')
 def random_task(db_session):
     user = db_session.query(UserModel).filter_by(username="user_test").first()
     task = db_session.query(TaskModel).filter_by(user_id=user.id).first()
