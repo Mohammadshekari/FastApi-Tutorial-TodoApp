@@ -1,6 +1,8 @@
+import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
+from starlette.middleware.cors import CORSMiddleware
 
 from auth.jwt_auth import get_authenticated_user
 from tasks.routes import router as tasks_routes
@@ -40,6 +42,20 @@ app = FastAPI(
     lifespan=lifespan,
     openapi_tags=tags_metadata
 )
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(tasks_routes, prefix="/api/v1/todo")
 app.include_router(users_routes, prefix="/api/v1/user")
@@ -53,3 +69,14 @@ def public_route():
 @app.get("/private")
 def private_route(current_user: UserModel = Depends(get_authenticated_user)):
     return {"message": f"Hello {current_user.username}, this is a private route."}
+
+
+@app.middleware('http')
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.perf_counter()
+    print("before")
+    response = await call_next(request)
+    print("next")
+    process_time = time.perf_counter() - start_time
+    response.headers['X-Process-Time'] = str(process_time)
+    return response

@@ -16,9 +16,9 @@ router = APIRouter(tags=["users"])
 async def user_login(request: UserLoginSchema, db: Session = Depends(get_db)):
     user_obj: UserModel | None = db.query(UserModel).filter_by(username=request.username.lower()).first()
     if not user_obj:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="user doesn't exists!")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid username aor password")
     if not user_obj.verify_password(request.password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="invalid password")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid username aor password")
 
     access_token = generate_access_token(user_obj.id)
     refresh_token = generate_refresh_token(user_obj.id)
@@ -37,7 +37,10 @@ async def user_register(request: UserRegisterSchema, db: Session = Depends(get_d
     user_obj.set_password(request.password)
     db.add(user_obj)
     db.commit()
-    return JSONResponse(content={"detail": "users registered successfully"})
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={"detail": "users registered successfully"}
+    )
 
 
 @router.post("/refresh")
