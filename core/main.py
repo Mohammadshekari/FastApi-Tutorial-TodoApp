@@ -17,6 +17,7 @@ from fastapi.responses import JSONResponse
 
 from auth.jwt_auth import get_authenticated_user
 from core.config import settings
+from core.email_utils import send_email
 from tasks.routes import router as tasks_routes
 from users.models import UserModel
 from users.routes import router as users_routes
@@ -166,3 +167,14 @@ async def cache_last_datetime_without_decorator():
         current_datetime = datetime.datetime.now().isoformat()
         await cache_backend.set(cache_key, current_datetime.encode('utf-8'), 10)
         return {"last_action": current_datetime}
+
+
+# Endpoint to send email
+@app.get("/test-send-mail", status_code=200)
+async def test_send_mail():
+    await send_email(
+        subject="Test Email from FastAPI",
+        recipients=["recipient@example.com"],
+        body="This is a test email sent using the email_util function."
+    )
+    return JSONResponse(content={"detail": "Email has been sent"})
