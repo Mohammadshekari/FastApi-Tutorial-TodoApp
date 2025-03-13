@@ -1,5 +1,5 @@
 fastapi[all]>0.115,<0.116
-alembic>1.15<1.16
+alembic>1.15,<1.16
 passlib[bcrypt]
 pyjwt
 faker
