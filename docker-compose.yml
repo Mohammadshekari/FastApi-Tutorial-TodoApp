@@ -50,9 +50,9 @@ services:
     depends_on:
       - db
 #      - redis
-#    environment:
-#      SQLALCHEMY_DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
-#      JWT_SECRET_KEY: z_f%#7x&0!n6uuamyca%y5swv1(9e=u=wu9s#wy(3f-k__k777
+    environment:
+      SQLALCHEMY_DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
+      JWT_SECRET_KEY: z_f%#7x&0!n6uuamyca%y5swv1(9e=u=wu9s#wy(3f-k__k777
 #      REDIS_URL: redis://redis:6379
     ports:
       - "8000:8000"

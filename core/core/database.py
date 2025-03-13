@@ -5,9 +5,7 @@ from core.config import settings
 
 engine = create_engine(
     settings.SQLALCHEMY_DATABASE_URL,
-    connect_args={
-        "check_same_thread": False
-    }
+    # connect_args={"check_same_thread": False}
 )
 
 SessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engine)

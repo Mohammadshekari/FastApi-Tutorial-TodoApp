@@ -7,7 +7,7 @@ WORKDIR /usr/src/core
 COPY ./requirements.txt .
 
 
-RUN pip install --no-cache-dir --upgrade -r ./requirements.txt
+RUN pip install -i https://mirror-pypi.runflare.com/simple --no-cache-dir --upgrade -r ./requirements.txt
 
 
 COPY ./core .
