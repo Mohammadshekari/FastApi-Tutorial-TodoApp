@@ -10,7 +10,12 @@ from alembic import context
 from core.database import Base
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
+
+ENV_PATH = BASE_DIR / ".env"
+if ENV_PATH.exists():
+    load_dotenv(ENV_PATH)
+else:
+    print(".env file does not exists!")
 DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
 
 # this is the Alembic Config object, which provides
@@ -60,7 +65,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
-        render_as_batch=True
+        # render_as_batch=True FOR SQLITE
     )
 
     with context.begin_transaction():
@@ -82,7 +87,7 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            render_as_batch=True,
+            # render_as_batch=True, FOR SQLITE
             connection=connection, target_metadata=target_metadata
         )
 

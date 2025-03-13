@@ -11,7 +11,7 @@ class TaskModel(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(150), nullable=True)
-    description = Column(Text(500), nullable=True)
+    description = Column(Text, nullable=True)
     is_completed = Column(Boolean, default=False)
 
     created_at = Column(DateTime, server_default=func.now())

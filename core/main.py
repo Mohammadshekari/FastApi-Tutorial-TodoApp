@@ -8,12 +8,15 @@ from fastapi import FastAPI, Depends, Request, status, BackgroundTasks
 from fastapi.exceptions import RequestValidationError
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache.backends.redis import RedisBackend
+from redis import asyncio as aioredis
 from fastapi_cache.decorator import cache
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from auth.jwt_auth import get_authenticated_user
+from core.config import settings
 from tasks.routes import router as tasks_routes
 from users.models import UserModel
 from users.routes import router as users_routes
@@ -140,8 +143,9 @@ def init_task(background_tasks: BackgroundTasks):
     return {"message": f"Task Done"}
 
 
-cache_backend = InMemoryBackend()
-FastAPICache.init(cache_backend)
+redis = aioredis.from_url(settings.REDIS_URL)
+cache_backend = RedisBackend(redis)
+FastAPICache.init(cache_backend, prefix="fastapi-cache")
 
 
 @app.get("/cache_last_datetime_with_decorator")

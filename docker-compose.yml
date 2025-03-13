@@ -16,17 +16,18 @@ services:
       timeout: 10s
     ports:
       - "5432:5432"
-#  redis:
-#    image: redis:alpine
-#    container_name: redis
-#    ports:
-#      - "6379:6379"
-#    healthcheck:
-#      test: ["CMD", "redis-cli", "ping"]
-#      interval: 10s
-#      retries: 5
-#      start_period: 30s
-#      timeout: 10s
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
 #  smtp4dev:
 #    image: rnwood/smtp4dev:v3
@@ -49,11 +50,11 @@ services:
     container_name: backend
     depends_on:
       - db
-#      - redis
+      - redis
     environment:
       SQLALCHEMY_DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
       JWT_SECRET_KEY: z_f%#7x&0!n6uuamyca%y5swv1(9e=u=wu9s#wy(3f-k__k777
-#      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://redis:6379
     ports:
       - "8000:8000"
     command: bash -c 'fastapi dev --host 0.0.0.0 --port 8000'
