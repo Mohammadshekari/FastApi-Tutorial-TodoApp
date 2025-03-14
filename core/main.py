@@ -178,3 +178,18 @@ async def test_send_mail():
         body="This is a test email sent using the email_util function."
     )
     return JSONResponse(content={"detail": "Email has been sent"})
+
+
+from core.celery_conf import add_number
+from celery.result import AsyncResult
+
+
+@app.get("/initiate-celery-task", status_code=200)
+async def initiate_celery_task():
+    return JSONResponse(content={"detail": add_number.delay(1, 2).id})
+
+
+@app.get("/check-celery-task-result", status_code=200)
+async def initiate_celery_task(task_id: str):
+    result = AsyncResult(task_id).ready()
+    return JSONResponse(content={"result": result})
